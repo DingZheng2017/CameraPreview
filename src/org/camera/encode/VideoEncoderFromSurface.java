@@ -25,15 +25,6 @@ public class VideoEncoderFromSurface {
 															// I-frames
 	private static final int TIMEOUT_USEC = 10000;
 	private static final int BIT_RATE = 6000000; // bit rate
-	private static final int TEST_Y = 120; // YUV values for colored rect
-	private static final int TEST_U = 160;
-	private static final int TEST_V = 200;
-	private static final int TEST_R0 = 0; // RGB equivalent of {0,0,0}
-	private static final int TEST_G0 = 136;
-	private static final int TEST_B0 = 0;
-	private static final int TEST_R1 = 236; // RGB equivalent of {120,160,200}
-	private static final int TEST_G1 = 50;
-	private static final int TEST_B1 = 186;
 	private int mWidth;
 	private int mHeight;
 	private MediaCodec mMediaCodec;
@@ -243,98 +234,6 @@ public class VideoEncoderFromSurface {
 	 */
 	private static long computePresentationTime(int frameIndex) {
 		return 132 + frameIndex * 1000000 / FRAME_RATE;
-	}
-
-	/**
-	 * Generates data for frame N into the supplied buffer. We have an 8-frame
-	 * animation sequence that wraps around. It looks like this:
-	 * 
-	 * <pre>
-	 *   0 1 2 3
-	 *   7 6 5 4
-	 * </pre>
-	 * 
-	 * We draw one of the eight rectangles and leave the rest set to the
-	 * zero-fill color.
-	 */
-	private void generateFrame(int frameIndex, int colorFormat, byte[] frameData) {
-		final int HALF_WIDTH = this.mWidth / 2;
-		boolean semiPlanar = isSemiPlanarYUV(colorFormat);
-		// Set to zero. In YUV this is a dull green.
-		Arrays.fill(frameData, (byte) 0);
-		int startX, startY, countX, countY;
-		frameIndex %= 8;
-		// frameIndex = (frameIndex / 8) % 8; // use this instead for debug --
-		// easier to see
-		if (frameIndex < 4) {
-			startX = frameIndex * (this.mWidth / 4);
-			startY = 0;
-		} else {
-			startX = (7 - frameIndex) * (this.mWidth / 4);
-			startY = this.mHeight / 2;
-		}
-		for (int y = startY + (this.mHeight / 2) - 1; y >= startY; --y) {
-			for (int x = startX + (this.mWidth / 4) - 1; x >= startX; --x) {
-				if (semiPlanar) {
-					// full-size Y, followed by UV pairs at half resolution
-					// e.g. Nexus 4 OMX.qcom.video.encoder.avc
-					// COLOR_FormatYUV420SemiPlanar
-					// e.g. Galaxy Nexus OMX.TI.DUCATI1.VIDEO.H264E
-					// OMX_TI_COLOR_FormatYUV420PackedSemiPlanar
-					frameData[y * this.mWidth + x] = (byte) TEST_Y;
-					if ((x & 0x01) == 0 && (y & 0x01) == 0) {
-						frameData[this.mWidth * this.mHeight + y
-								* HALF_WIDTH + x] = (byte) TEST_U;
-						frameData[this.mWidth * this.mHeight + y
-								* HALF_WIDTH + x + 1] = (byte) TEST_V;
-					}
-				} else {
-					// full-size Y, followed by quarter-size U and quarter-size
-					// V
-					// e.g. Nexus 10 OMX.Exynos.AVC.Encoder
-					// COLOR_FormatYUV420Planar
-					// e.g. Nexus 7 OMX.Nvidia.h264.encoder
-					// COLOR_FormatYUV420Planar
-					frameData[y * this.mWidth + x] = (byte) TEST_Y;
-					if ((x & 0x01) == 0 && (y & 0x01) == 0) {
-						frameData[this.mWidth * this.mHeight + (y / 2)
-								* HALF_WIDTH + (x / 2)] = (byte) TEST_U;
-						frameData[this.mWidth * this.mHeight
-								+ HALF_WIDTH * (this.mHeight / 2) + (y / 2)
-								* HALF_WIDTH + (x / 2)] = (byte) TEST_V;
-					}
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Generates data for frame N into the supplied buffer. We have an 8-frame
-	 * animation sequence that wraps around. It looks like this:
-	 * 
-	 * <pre>
-	 *   0 1 2 3
-	 *   7 6 5 4
-	 * </pre>
-	 * 
-	 * We draw one of the eight rectangles and leave the rest set to the
-	 * zero-fill color.
-	 */
-	private void generateFrameFFMPEG(int frameIndex, int colorFormat, byte[] frameData) {
-		/* Y */
-		for (int y = 0; y < this.mHeight; y++) {
-            for (int x = 0; x < this.mWidth; x++) {
-            		frameData[y * this.mWidth + x] = (byte) (x + y + frameIndex * 3);
-            }
-        }
-
-        /* Cb and Cr */
-        for (int y = 0; y < this.mHeight/2; y++) {
-            for (int x = 0; x < this.mWidth/2; x++) {
-            		frameData[y * this.mWidth + x] = (byte) (128 + y + frameIndex * 2);
-            		frameData[y * this.mWidth + this.mWidth/2 + x] = (byte) (64 + x + frameIndex * 5);
-            }
-        }
 	}
 
 	/**

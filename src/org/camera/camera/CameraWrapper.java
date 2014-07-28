@@ -21,6 +21,8 @@ public class CameraWrapper {
 	public static final int IMAGE_HEIGHT = 720;
 	public static final int IMAGE_WIDTH = 1280;
 	private CameraPreviewCallback mCameraPreviewCallback;
+	private byte[] mImageCallbackBuffer = new byte[CameraWrapper.IMAGE_WIDTH
+	                     				* CameraWrapper.IMAGE_HEIGHT * 3 / 2];
 
 	public interface CamOpenOverCallback {
 		public void cameraHasOpened();
@@ -64,6 +66,7 @@ public class CameraWrapper {
 			this.mCamera.stopPreview();
 			return;
 		}
+		this.mPreviewRate = previewRate;
 		this.mCameraParamters = this.mCamera.getParameters();
 		this.mCameraParamters.setPreviewFormat(ImageFormat.NV21);
 		this.mCameraParamters.setFlashMode("off");
@@ -72,7 +75,8 @@ public class CameraWrapper {
 		this.mCameraParamters.setPreviewSize(IMAGE_WIDTH, IMAGE_HEIGHT);
 		this.mCamera.setDisplayOrientation(90);
 		mCameraPreviewCallback = new CameraPreviewCallback();
-		this.mCamera.setPreviewCallback(mCameraPreviewCallback);
+		mCamera.addCallbackBuffer(mImageCallbackBuffer);
+		mCamera.setPreviewCallbackWithBuffer(mCameraPreviewCallback);
 		List<String> focusModes = this.mCameraParamters.getSupportedFocusModes();
 		if (focusModes.contains("continuous-video")) {
 			this.mCameraParamters
@@ -134,15 +138,12 @@ public class CameraWrapper {
 			this.mCamera.startPreview();
 			
 			this.mIsPreviewing = true;
-			this.mPreviewRate = mPreviewRate;
 		}
 	}
 	
 	class CameraPreviewCallback implements Camera.PreviewCallback {
 		private static final String TAG = "CameraPreviewCallback";
 		private VideoEncoderFromBuffer videoEncoder = null;
-		private byte[] encodeData = new byte[CameraWrapper.IMAGE_WIDTH
-				* CameraWrapper.IMAGE_HEIGHT * 3 / 2];
 
 		private CameraPreviewCallback() {
 			videoEncoder = new VideoEncoderFromBuffer(CameraWrapper.IMAGE_WIDTH,
@@ -160,6 +161,7 @@ public class CameraWrapper {
 			videoEncoder.encodeFrame(data/*, encodeData*/);
 			long endTime = System.currentTimeMillis();
 			Log.i(TAG, Integer.toString((int)(endTime-startTime)) + "ms");
+			camera.addCallbackBuffer(data);
 		}
 	}
 }

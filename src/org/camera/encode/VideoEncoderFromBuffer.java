@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import org.camera.camera.CameraWrapper;
+
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
@@ -27,7 +29,8 @@ public class VideoEncoderFromBuffer {
 	private static final int IFRAME_INTERVAL = FRAME_RATE; // 10 between
 															// I-frames
 	private static final int TIMEOUT_USEC = 10000;
-	private static final int BIT_RATE = 6000000; // bit rate
+	private static final int COMPRESS_RATIO = 256;
+	private static final int BIT_RATE = CameraWrapper.IMAGE_HEIGHT * CameraWrapper.IMAGE_WIDTH * 3 * 8 * FRAME_RATE / COMPRESS_RATIO; // bit rate CameraWrapper.
 	private int mWidth;
 	private int mHeight;
 	private MediaCodec mMediaCodec;
@@ -142,6 +145,7 @@ public class VideoEncoderFromBuffer {
 					Log.d(TAG, "encoder output buffers changed");
 			} else if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
 				// not expected for an encoder
+				
 				MediaFormat newFormat = mMediaCodec.getOutputFormat();
                 Log.d(TAG, "encoder output format changed: " + newFormat);
 
@@ -154,6 +158,8 @@ public class VideoEncoderFromBuffer {
 						outputBufferIndex);
                 // let's ignore it
 			} else {
+				if (VERBOSE)
+					Log.d(TAG, "perform encoding");
 				ByteBuffer outputBuffer = outputBuffers[outputBufferIndex];
 				if (outputBuffer == null) {
                     throw new RuntimeException("encoderOutputBuffer " + outputBufferIndex +
@@ -169,7 +175,11 @@ public class VideoEncoderFromBuffer {
 
 				if (mBufferInfo.size != 0) {
 					if (!mMuxerStarted) {
-						throw new RuntimeException("muxer hasn't started");
+//						throw new RuntimeException("muxer hasn't started");
+						MediaFormat newFormat = mMediaCodec.getOutputFormat();
+						mTrackIndex = mMuxer.addTrack(newFormat);
+			            mMuxer.start();
+			            mMuxerStarted = true;
 					}
 
 					// adjust the ByteBuffer values to match BufferInfo (not needed?)

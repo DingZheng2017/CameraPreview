@@ -112,6 +112,9 @@ public class CameraWrapper {
 			this.mCameraParamters.setSceneMode(Camera.Parameters.SCENE_MODE_AUTO);
 			this.mCameraParamters.setPreviewSize(IMAGE_WIDTH, IMAGE_HEIGHT);
 			this.mCamera.setDisplayOrientation(90);
+			mCameraPreviewCallback = new CameraPreviewCallback();
+			mCamera.addCallbackBuffer(mImageCallbackBuffer);
+			mCamera.setPreviewCallbackWithBuffer(mCameraPreviewCallback);
 			List<String> focusModes = this.mCameraParamters.getSupportedFocusModes();
 			if (focusModes.contains("continuous-video")) {
 				this.mCameraParamters

@@ -2,15 +2,15 @@ package org.camera.camera;
 
 import java.io.IOException;
 import java.util.List;
-
+import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.util.Log;
 import android.view.SurfaceHolder;
-
 import org.camera.encode.*;
 
+@SuppressLint("NewApi")
 public class CameraWrapper {
 	private static final String TAG = "CameraWrapper";
 	private Camera mCamera;
@@ -66,23 +66,6 @@ public class CameraWrapper {
 			this.mCamera.stopPreview();
 			return;
 		}
-		this.mPreviewRate = previewRate;
-		this.mCameraParamters = this.mCamera.getParameters();
-		this.mCameraParamters.setPreviewFormat(ImageFormat.NV21);
-		this.mCameraParamters.setFlashMode("off");
-		this.mCameraParamters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
-		this.mCameraParamters.setSceneMode(Camera.Parameters.SCENE_MODE_AUTO);
-		this.mCameraParamters.setPreviewSize(IMAGE_WIDTH, IMAGE_HEIGHT);
-		this.mCamera.setDisplayOrientation(90);
-		mCameraPreviewCallback = new CameraPreviewCallback();
-		mCamera.addCallbackBuffer(mImageCallbackBuffer);
-		mCamera.setPreviewCallbackWithBuffer(mCameraPreviewCallback);
-		List<String> focusModes = this.mCameraParamters.getSupportedFocusModes();
-		if (focusModes.contains("continuous-video")) {
-			this.mCameraParamters
-					.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-		}
-		this.mCamera.setParameters(this.mCameraParamters);
 
 		try {
 			this.mCamera.setPreviewDisplay(holder);

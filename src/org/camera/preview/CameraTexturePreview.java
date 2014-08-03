@@ -1,5 +1,6 @@
 package org.camera.preview;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
@@ -7,6 +8,7 @@ import android.util.Log;
 import android.view.TextureView;
 import org.camera.camera.*;
 
+@SuppressLint("NewApi")
 public class CameraTexturePreview extends TextureView implements TextureView.SurfaceTextureListener {
 	private final String TAG = "CameraTexturePreview";
 	Context mContext;  

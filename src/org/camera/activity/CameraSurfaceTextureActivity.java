@@ -1,7 +1,7 @@
 package org.camera.activity;
 
 import com.example.camerapreview.R;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Point;
 import android.graphics.SurfaceTexture;
@@ -10,11 +10,11 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.ViewGroup.LayoutParams;  
-
 import org.camera.camera.CameraWrapper;
 import org.camera.camera.CameraWrapper.CamOpenOverCallback;
 import org.camera.preview.*;
 
+@SuppressLint("NewApi")
 public class CameraSurfaceTextureActivity extends Activity implements CamOpenOverCallback{
 	private static final String TAG = "CameraPreviewActivity";
 	private CameraTexturePreview mCameraTexturePreview;
@@ -44,7 +44,7 @@ public class CameraSurfaceTextureActivity extends Activity implements CamOpenOve
     } 
 	
 	private void initUI() {
-//		mCameraTexturePreview = (CameraTexturePreview) findViewById(R.id.camera_textureview);
+		mCameraTexturePreview = (CameraTexturePreview) findViewById(R.id.camera_textureview);
 	}
 	
 	private void initViewParams() { 

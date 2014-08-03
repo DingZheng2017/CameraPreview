@@ -17,7 +17,7 @@
         android:theme="@style/AppTheme" >
         
         <activity  
-            android:name="org.camera.activity.CameraSurfacePreviewActivity"  
+            android:name="org.camera.activity.CameraSurfaceTextureActivity"  
             android:label="@string/app_name"   
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"  
             android:screenOrientation="portrait">  

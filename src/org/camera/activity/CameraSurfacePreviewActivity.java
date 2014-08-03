@@ -44,7 +44,7 @@ public class CameraSurfacePreviewActivity extends Activity implements CamOpenOve
     } 
 	
 	private void initUI() {
-		cameraSurfacePreview = (CameraSurfacePreview) findViewById(R.id.camera_surfaceview);
+//		cameraSurfacePreview = (CameraSurfacePreview) findViewById(R.id.camera_surfaceview);
 	}
 	
 	private void initViewParams() {
